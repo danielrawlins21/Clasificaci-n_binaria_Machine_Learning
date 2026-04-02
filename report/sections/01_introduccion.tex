@@ -1,7 +1,21 @@
 \section{Introducción}
 
-En esta sección se presenta el objetivo del trabajo, el contexto del problema de churn y la estructura general del informe. También se adelantan los criterios metodológicos que guían el análisis, el preprocesamiento, la selección de variables y la comparación entre modelos.
+La modelización predictiva es una herramienta clave para anticipar la ocurrencia de eventos binarios en contextos de toma de decisiones. En este marco, los modelos de \textit{customer churn} (abandono de clientes) pueden interpretarse como un caso particular de modelos de puntuación de riesgo.
 
+El problema de churn consiste en estimar la probabilidad de que un cliente abandone un servicio en un horizonte temporal determinado, lo que se formula como un problema de clasificación binaria.
+
+En este trabajo se desarrolla un proceso completo de modelización predictiva, que incluye la depuración de datos, la selección de variables, la estimación de modelos y la evaluación de su capacidad predictiva.
+
+Asimismo, se comparan distintos enfoques, desde modelos clásicos como la regresión logística hasta modelos más flexibles como árboles de decisión y redes neuronales.
 \subsection{Objetivo}
 
-Describir el problema, justificar el enfoque experimental y situar el resto de apartados dentro de un protocolo reproducible.
+El objetivo principal de este trabajo es desarrollar y comparar distintos modelos de clasificación para la predicción del churn, evaluando su rendimiento bajo un protocolo experimental reproducible. En particular, se pretende:
+
+\begin{itemize}
+    \item Describir el problema de churn y su formulación como un problema de clasificación binaria.
+    \item Implementar un proceso riguroso de preprocesamiento y selección de variables.
+    \item Estimar distintos modelos predictivos, incluyendo regresión logística, redes neuronales y árboles de decisión.
+    \item Comparar el desempeño de los modelos utilizando métricas adecuadas de evaluación.
+\end{itemize}
+
+Todo el análisis se realizará siguiendo criterios de reproducibilidad y consistencia metodológica, de manera que los resultados obtenidos puedan ser interpretados y replicados de forma transparente.
