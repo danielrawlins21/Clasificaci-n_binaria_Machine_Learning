@@ -1,0 +1,148 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-nodecimaldot]{babel}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{float}
+\usepackage{amsmath,amssymb}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage[hidelinks]{hyperref}
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+\geometry{margin=2.5cm}
+\setstretch{1.15}
+\setlength{\parskip}{0.4em}
+\setlength{\parindent}{0pt}
+
+\hypersetup{
+		colorlinks=true,
+		linkcolor=blue,
+		urlcolor=blue,
+		citecolor=blue
+}
+
+\lstset{
+		language=Python,
+		basicstyle=\ttfamily\small,
+		keywordstyle=\color{blue},
+		stringstyle=\color{green!60!black},
+		commentstyle=\color{gray},
+		showstringspaces=false,
+		breaklines=true,
+		frame=single
+}
+
+\setlength{\parskip}{0.6em}
+\setlength{\parindent}{0pt}
+\onehalfspacing
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Tarea de minería de datos y modelización predictiva}
+\fancyhead[R]{\thepage}
+
+% ---------- PORTADA ----------
+\newcommand{\universidad}{UNIVERSIDAD COMPLUTENSE DE MADRID}
+\newcommand{\facultad}{Facultad de Estudios Estadísticos}
+\newcommand{\grado}{Máster en Big Data, Data Science \& Inteligencia Artificial}
+\newcommand{\curso}{2025--2026}
+\newcommand{\ciudad}{Madrid}
+
+\newcommand{\titulo}{Clasificación binaria de churn con selección de variables y redes neuronales}
+\newcommand{\autor}{Daniel Olmedo Rawlins Poveda}
+\newcommand{\asignatura}{Tarea de minería de datos y modelización predictiva}
+\newcommand{\profesor}{Pablo Arcadio Flores}
+\newcommand{\fecha}{\today}
+
+\begin{document}
+
+\begin{titlepage}
+	\centering
+	\vspace*{0.5cm}
+
+	\begin{minipage}{0.45\textwidth}
+		\centering
+		\IfFileExists{figures/ucm-logo.png}{%
+			\includegraphics[width=3.4cm]{figures/ucm-logo.png}%
+		}{%
+			\vspace*{3.4cm}%
+		}
+	\end{minipage}%
+	\begin{minipage}{0.45\textwidth}
+		\centering
+		\IfFileExists{figures/ntic-master.png}{%
+			\includegraphics[width=4.6cm]{figures/ntic-master.png}%
+		}{%
+			\vspace*{3.4cm}%
+		}
+	\end{minipage}
+
+	\vspace{0.5cm}
+
+	{\Large \textbf{\universidad}}\\[0.25cm]
+	{\large \facultad}\\[0.1cm]
+	{\large \grado}
+
+	\vfill
+
+	{\LARGE \textbf{\titulo}}\\[0.5cm]
+	{\large \textit{Tarea de} \asignatura}
+
+	\vfill
+
+	\begin{flushleft}
+	\setlength{\tabcolsep}{6pt}
+	\renewcommand{\arraystretch}{1.2}
+	\begin{tabular}{@{}ll}
+		\textbf{Autor:} & \autor \\
+		\textbf{Profesor:} & \profesor \\
+		\textbf{Curso académico:} & \curso \\
+	\end{tabular}
+	\end{flushleft}
+
+	\vfill
+
+	{\ciudad, \fecha}
+\end{titlepage}
+
+\clearpage
+\pagenumbering{roman}
+
+\begin{abstract}
+Este documento presenta el desarrollo completo de una tarea de clasificación binaria sobre churn. Se analizan los datos, se depuran y se evalúan dos flujos principales: uno orientado a maximizar Accuracy mediante RFE con regresión logística y una red neuronal, y otro orientado a maximizar Recall a partir de variables relevantes obtenidas con un árbol de decisión y una red neuronal posterior.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\pagenumbering{arabic}
+
+\input{sections/01_introduccion}
+\input{sections/02_descripcion_dataset}
+\input{sections/03_analisis_depuracion}
+\input{sections/04_protocolo_experimental}
+\input{sections/05_modelo_accuracy}
+\input{sections/06_modelo_recall}
+\input{sections/07_comparacion_global}
+\input{sections/08_conclusiones}
+
+\appendix
+\input{sections/A1_apendice}
+
+\bibliographystyle{plainnat}
+\bibliography{bibliography}
+
+\end{document}
