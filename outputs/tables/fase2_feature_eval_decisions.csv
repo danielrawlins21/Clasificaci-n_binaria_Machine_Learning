@@ -1,0 +1,15 @@
+candidate,objective,acc_base_mean,acc_ext_mean,recall_base_mean,recall_ext_mean,precision_base_mean,precision_ext_mean,prauc_base_mean,prauc_ext_mean,primary_std_base,primary_std_ext,decision,reason
+total_minutes,accuracy,,,,,,,,,,,pendiente,faltan metricas de validacion
+total_minutes,recall,,,,,,,,,,,pendiente,faltan metricas de validacion
+total_calls,accuracy,,,,,,,,,,,pendiente,faltan metricas de validacion
+total_calls,recall,,,,,,,,,,,pendiente,faltan metricas de validacion
+minutes_per_call,accuracy,,,,,,,,,,,pendiente,faltan metricas de validacion
+minutes_per_call,recall,,,,,,,,,,,pendiente,faltan metricas de validacion
+international_share_minutes,accuracy,,,,,,,,,,,pendiente,faltan metricas de validacion
+international_share_minutes,recall,,,,,,,,,,,pendiente,faltan metricas de validacion
+log1p_v2,accuracy,,,,,,,,,,,pendiente,faltan metricas de validacion
+log1p_v2,recall,,,,,,,,,,,pendiente,faltan metricas de validacion
+log1p_total_minutes,accuracy,,,,,,,,,,,pendiente,faltan metricas de validacion
+log1p_total_minutes,recall,,,,,,,,,,,pendiente,faltan metricas de validacion
+customer_service_intensity,accuracy,,,,,,,,,,,pendiente,faltan metricas de validacion
+customer_service_intensity,recall,,,,,,,,,,,pendiente,faltan metricas de validacion

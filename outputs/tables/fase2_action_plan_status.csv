@@ -1,0 +1,6 @@
+step,owner,status
+Crear split externo estratificado y guardarlo,notebook,hecho
+Guardar configuracion formal del split/CV,notebook,hecho
+Calcular metricas CV base vs extendido por candidata,notebook,pendiente
+Aplicar regla de decision y exportar aceptar/rechazar,notebook,hecho
+Generar resumen final para memoria,notebook,pendiente

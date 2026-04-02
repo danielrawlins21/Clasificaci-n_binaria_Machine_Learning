@@ -1,11 +1,68 @@
 \section{Protocolo experimental}
 
-En esta sección se fija el esquema de partición de datos, la estrategia de validación y las reglas comunes para evitar fuga de información. También se describen los criterios de selección de umbral y la forma de comparar resultados entre enfoques.
+En esta sección se define el protocolo común para todos los experimentos, con el objetivo de garantizar comparabilidad entre enfoques y evitar \textit{data leakage}. El protocolo se aplica sobre el conjunto de modelado resultante de la Fase 1 \((3538, 16)\).
 
 \subsection{Partición y validación}
 
-Aquí se documentará el reparto en entrenamiento, validación y test, así como el uso de validación cruzada estratificada.
+Se adopta un esquema en dos niveles:
+
+\begin{enumerate}
+	\item \textbf{Partición externa estratificada}: separación inicial en \textit{train\_val} y \textit{test} mediante una única semilla fija (\texttt{random\_state = 42}). El conjunto de test queda bloqueado para evaluación final.
+	\item \textbf{Validación interna estratificada}: dentro de \textit{train\_val}, uso de validación cruzada estratificada para seleccionar variables, hiperparámetros y umbral.
+\end{enumerate}
+
+Reglas operativas comunes:
+
+\begin{itemize}
+	\item Imputación, codificación y escalado se ajustan exclusivamente con datos de entrenamiento en cada pliegue.
+	\item Cualquier selección de variables (RFE o importancia del árbol) se realiza dentro del marco de validación.
+	\item El conjunto de test no interviene en la elección de transformaciones, hiperparámetros ni umbral.
+\end{itemize}
+
+\subsection{Validación de candidatas de feature engineering}
+
+Las variables candidatas propuestas tras el EDA (tabla \texttt{fase2\_feature\_candidates.csv}) no se incorporan de forma automática. Su adopción se decide con una regla explícita de validación para evitar sobreajuste por diseño.
+
+Para cada candidata (o bloque coherente de candidatas), se comparan dos configuraciones en validación cruzada sobre \textit{train\_val}:
+
+\begin{itemize}
+	\item \textbf{Modelo base}: sin la nueva transformación.
+	\item \textbf{Modelo extendido}: incluyendo la transformación candidata.
+\end{itemize}
+
+El criterio de aceptación será:
+
+\begin{enumerate}
+	\item \textbf{Apartado orientado a Accuracy}: aceptar la candidata solo si mejora la Accuracy media de validación y no produce una caída relevante de Recall (caída absoluta mayor de 0.02).
+	\item \textbf{Apartado orientado a Recall}: aceptar la candidata solo si mejora la Recall media de validación y no provoca un deterioro severo de Precision o PR-AUC (caída absoluta mayor de 0.02 en ambos indicadores).
+	\item \textbf{Estabilidad}: en ambos apartados, la desviación estándar entre pliegues no debe aumentar de forma marcada respecto al modelo base (incremento superior al 20\% como señal de inestabilidad).
+\end{enumerate}
+
+Adicionalmente, si dos transformaciones ofrecen mejoras similares, se priorizará la alternativa más interpretable y con menor complejidad del pipeline.
+
+\subsection{Selección de umbral}
+
+La selección de umbral se realiza exclusivamente con predicciones de validación interna. Se evalúa una rejilla de umbrales y se guarda una tabla de métricas por umbral.
+
+\begin{itemize}
+	\item En el bloque de Accuracy, se selecciona el umbral que maximiza Accuracy manteniendo degradación de Recall controlada.
+	\item En el bloque de Recall, se selecciona el umbral que prioriza captación de churn y se reporta explícitamente el coste en falsos positivos.
+\end{itemize}
+
+El umbral final elegido en validación se aplica una única vez sobre test.
 
 \subsection{Métricas}
 
-Se resumirán las métricas empleadas en el estudio: Accuracy, Recall, Precision, F1, ROC-AUC, PR-AUC y matriz de confusión.
+Las métricas comunes para todos los experimentos son:
+
+\begin{itemize}
+	\item Accuracy,
+	\item Recall,
+	\item Precision,
+	\item F1-score,
+	\item ROC-AUC,
+	\item PR-AUC,
+	\item matriz de confusión.
+\end{itemize}
+
+La métrica primaria cambia según el objetivo del apartado (Accuracy en el modelo 1 y Recall en el modelo 2), pero la interpretación final se realiza siempre de forma multivariable para evitar conclusiones sesgadas por un único indicador.
