@@ -1,7 +1,25 @@
 \section{Descripción del conjunto de datos}
 
-En esta sección se documenta la estructura de la base de datos, el significado de las variables y una primera lectura de su papel conceptual. Se identifican también posibles variables identificadoras, categóricas codificadas numéricamente y relaciones de redundancia esperables.
+El conjunto de datos utilizado en este trabajo corresponde a clientes de una empresa de telecomunicaciones y tiene como finalidad predecir el riesgo de abandono del servicio. La base está formada por veinte variables explicativas, denotadas como \(V1\) a \(V20\), y una variable objetivo \(Y\), que identifica si el cliente ha abandonado o no la compañía.
+
+Desde un punto de vista conceptual, las variables disponibles recogen distintas dimensiones del comportamiento del cliente, incluyendo información territorial, características del contrato, uso del servicio y relación con la empresa. Esta estructura sugiere la posible existencia de variables identificadoras, variables categóricas codificadas numéricamente y relaciones de dependencia entre variables de uso y facturación.
 
 \subsection{Variables y objetivo}
 
-Aquí se incluirá la descripción resumida de las variables \(V1\) a \(V20\) y de la variable objetivo \(Y\).
+La variable objetivo del problema es \(Y\), que toma valor \(1\) cuando el cliente abandona el servicio y valor \(0\) en caso contrario, configurando así un problema de clasificación binaria.
+
+Las variables explicativas pueden agruparse en distintas categorías:
+
+\begin{itemize}
+    \item \textbf{Identificación y localización}: \(V1\) (estado o región), \(V3\) (código de área) y \(V4\) (número de teléfono). Estas variables pueden incluir información categórica o identificadora, siendo especialmente relevante el carácter no predictivo esperado de \(V4\).
+    
+    \item \textbf{Características del cliente}: \(V2\) (duración de la cuenta), que refleja la antigüedad del cliente en la compañía.
+    
+    \item \textbf{Servicios contratados}: \(V5\) (plan internacional), \(V6\) (plan de buzón de voz) y \(V7\) (número de mensajes), que capturan el tipo de servicios activos.
+    
+    \item \textbf{Uso y facturación}: \(V8\)–\(V19\), que recogen minutos, número de llamadas y costes asociados en distintos periodos (diurno, vespertino, nocturno e internacional). Estas variables presentan potenciales relaciones de dependencia, ya que los costes suelen derivarse directamente del uso.
+    
+    \item \textbf{Atención al cliente}: \(V20\) (número de llamadas al servicio de atención), que puede actuar como indicador de insatisfacción o problemas con el servicio.
+\end{itemize}
+
+Esta clasificación inicial permite anticipar distintos tratamientos en la fase de preprocesamiento, especialmente en lo relativo a la codificación de variables categóricas, la eliminación de identificadores y la detección de posibles redundancias.
