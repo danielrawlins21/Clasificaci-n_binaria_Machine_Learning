@@ -1,0 +1,8 @@
+feature,definition,motivation
+total_minutes,V8 + V11 + V14 + V17,Resume la intensidad global de uso sin depender de la franja horaria.
+total_calls,V9 + V12 + V15 + V18,Agrega el volumen total de contactos por franjas.
+minutes_per_call,total_minutes / total_calls,Captura la intensidad media de cada contacto.
+international_share_minutes,V17 / total_minutes,Mide la proporción de uso internacional dentro del total.
+log1p_v2,log(1 + V2),Reduce asimetría y estabiliza el efecto de la antigüedad.
+log1p_total_minutes,log(1 + total_minutes),Suaviza colas largas en una variable de uso agregada.
+customer_service_intensity,V20,Mantiene la señal de insatisfacción observable en el número de llamadas al servicio.

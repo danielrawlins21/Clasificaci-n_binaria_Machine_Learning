@@ -1,0 +1,5 @@
+decision,value,detail
+deduplicate_before_split,True,5662 duplicados eliminados
+exclude_V4_by_design,True,V4 excluida
+redundancy_rule,abs(corr) > 0.999,"Variables eliminadas: ['V10', 'V13', 'V16', 'V19']"
+dataset_shape_transition,"(9200, 21) -> (3538, 21) -> (3538, 16)",Original -> deduplicado -> modelado

@@ -1,11 +1,61 @@
 \section{Análisis y depuración de datos}
 
-En esta sección se recopilan los resultados del control de calidad de los datos, la gestión de valores perdidos, el tratamiento de posibles anomalías, la detección de redundancias y las transformaciones aplicadas antes del modelado.
+Esta sección documenta la ingesta y auditoría inicial del conjunto de datos, así como las decisiones de depuración adoptadas antes de cualquier partición 
+entrenamiento--test. El objetivo es garantizar trazabilidad metodológica, reducir sesgos evitables y preparar un conjunto de modelado coherente con el enunciado.
 
 \subsection{Criterios de depuración}
 
-Se detallarán aquí las decisiones adoptadas y su justificación metodológica.
+El dataset contiene 9200 observaciones y 21 variables (20 predictoras y la variable objetivo binaria \(Y\)). Tras cargar los datos con interpretación explícita de \texttt{NA} como valor perdido, se observó la siguiente situación de calidad:
+
+\begin{itemize}
+	\item \textbf{Valores perdidos}: se detectaron faltantes en \(V3\), \(V10\), \(V14\), \(V15\) y \(V19\), con porcentajes bajos (todos por debajo del 1\%).
+	\item \textbf{Distribución de la clase objetivo}: \(Y=0\) y \(Y=1\) presentan exactamente 4600 casos cada una (50\%--50\%).
+	\item \textbf{Duplicados exactos}: se identificaron 5662 filas duplicadas exactas sobre 9200 registros.
+\end{itemize}
+
+Desde el punto de vista conceptual, se adoptó la clasificación inicial establecida en el protocolo del trabajo:
+\(V1\) y \(V3\) como variables nominales codificadas, \(V5\) y \(V6\) como binarias, \(V4\) como candidata a identificador, y el bloque \(V8\)--\(V19\) como variables de uso/coste.
+
+Con base en estos resultados, se fijaron las siguientes decisiones metodológicas \textbf{antes del split}:
+
+\begin{enumerate}
+	\item \textbf{Deduplicación previa}: se eliminaron duplicados exactos para evitar sobre-representación artificial de patrones. El tamaño pasó de \((9200, 21)\) a \((3538, 21)\).
+	\item \textbf{Exclusión de \(V4\)}: se eliminó por diseño por su carácter identificador y su limitada interpretabilidad causal/predictiva para churn.
+	\item \textbf{Regla explícita de redundancia}: en los pares minuto--coste \((V8,V10)\), \((V11,V13)\), \((V14,V16)\) y \((V17,V19)\), se observó correlación de Pearson prácticamente unitaria (\(>0.999\)). Se conservó la variable de minutos y se eliminó la de coste en cada par.
+\end{enumerate}
+
+Aplicando conjuntamente estas reglas, el conjunto de modelado quedó en \((3538, 16)\), con las columnas eliminadas \(V4\), \(V10\), \(V13\), \(V16\) y \(V19\).
+
+Todas las decisiones y tablas de soporte se exportaron automáticamente durante la ejecución del notebook a \texttt{outputs/tables/}, incluyendo:
+\texttt{fase1\_quality\_summary.csv},
+\texttt{fase1\_target\_distribution.csv},
+\texttt{fase1\_methodological\_decisions.csv} y
+\texttt{fase1\_redundancy\_decisions.csv}.
 
 \subsection{Feature engineering}
 
-Se describirán las transformaciones adicionales realizadas para mejorar la capacidad predictiva o la estabilidad de los modelos.
+Con base en el notebook de hallazgos del EDA, en esta fase se separó explícitamente la \textbf{base de modelado} de la \textbf{cartera de variables derivadas candidatas}. Esta distinción evita presentar como implementadas transformaciones que todavía deben validarse empíricamente.
+
+Primero, se consolidó una base depurada para modelado (sin ingeniería compleja), aplicando:
+
+\begin{itemize}
+	\item depuración por deduplicación,
+	\item exclusión de identificador no predictivo,
+	\item simplificación del espacio de variables ante redundancia casi determinista minuto--coste.
+\end{itemize}
+
+Como resultado, el conjunto base quedó en \((3538, 16)\), y constituye el punto de partida común para los apartados posteriores.
+
+En segundo lugar, se definió una cartera de \textit{feature engineering} candidata (sin fijarla todavía como definitiva), orientada a mejorar representatividad y estabilidad:
+
+\begin{itemize}
+	\item \textbf{Agregados de uso}: total de minutos y total de llamadas como resumen global de actividad.
+	\item \textbf{Intensidad media}: razón minutos/llamada para capturar la duración media de interacción.
+	\item \textbf{Composición internacional}: proporción de minutos internacionales sobre minutos totales.
+	\item \textbf{Transformaciones monótonas}: \(\log(1+x)\) sobre antigüedad y uso agregado para mitigar asimetrías.
+	\item \textbf{Señal de interacción con soporte}: mantenimiento explícito de la variable de atención al cliente como posible proxy de fricción.
+\end{itemize}
+
+Esta propuesta quedó registrada en la tabla \texttt{fase2\_feature\_candidates.csv}, generada en el notebook específico de hallazgos, para su evaluación comparativa en los pipelines de regresión logística, red neuronal y árbol.
+
+Por tanto, en este punto no se afirma que dichas variables derivadas mejoren necesariamente el rendimiento: su adopción final se decidirá únicamente mediante validación en entrenamiento, sin utilizar el conjunto de prueba, y manteniendo el principio de evitar \textit{data leakage}.
