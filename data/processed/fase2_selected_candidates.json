@@ -1,0 +1,14 @@
+{
+  "accuracy": [
+    "international_share_minutes",
+    "minutes_per_call",
+    "total_calls",
+    "total_minutes"
+  ],
+  "recall": [
+    "international_share_minutes",
+    "log1p_total_minutes",
+    "minutes_per_call",
+    "total_calls"
+  ]
+}

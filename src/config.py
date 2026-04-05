@@ -20,9 +20,9 @@ Uso típico:
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Sequence, Tuple
+from typing import List, Tuple
 
 
 @dataclass(frozen=True)
@@ -72,6 +72,12 @@ class ProjectConfig:
     project_root: Path
     random_state: int = 42
     target_col: str = "Y"
+    phase2_test_size: float = 0.20
+    phase2_n_splits: int = 5
+    phase2_recall_tolerance_acc: float = 0.02
+    phase2_precision_tolerance_rec: float = 0.02
+    phase2_prauc_tolerance_rec: float = 0.02
+    phase2_std_increase_limit: float = 0.20
 
     # Variables según conocimiento de dominio del enunciado
     id_columns: Tuple[str, ...] = ("V4",)
@@ -91,6 +97,24 @@ class ProjectConfig:
 
     missing_tokens: Tuple[str, ...] = ("NA",)
     expected_columns: Tuple[str, ...] = tuple([f"V{i}" for i in range(1, 21)] + ["Y"])
+    phase2_artifact_filenames: Tuple[str, ...] = (
+        "fase2_split_indices.csv",
+        "fase2_split_config.json",
+        "fase2_feature_candidates.csv",
+        "fase2_feature_eval_template.csv",
+        "fase2_feature_eval_metrics.csv",
+        "fase2_feature_eval_decisions.csv",
+        "fase2_feature_eval_summary_counts.csv",
+        "fase2_feature_eval_summary_delta.csv",
+        "fase2_action_plan_status.csv",
+    )
+    phase2_action_plan_steps: Tuple[str, ...] = (
+        "Crear split externo estratificado y guardarlo",
+        "Guardar configuracion formal del split/CV",
+        "Calcular metricas CV base vs extendido por candidata",
+        "Aplicar regla de decision y exportar aceptar/rechazar",
+        "Generar resumen final para memoria",
+    )
 
     @property
     def data_raw_dir(self) -> Path:
@@ -117,6 +141,14 @@ class ProjectConfig:
             Si el archivo no existe, raises FileNotFoundError.
         """
         return self.data_raw_dir / "BBDD_ML_TAREA.csv"
+
+    @property
+    def data_interim_dir(self) -> Path:
+        return self.project_root / "data" / "interim"
+
+    @property
+    def data_processed_dir(self) -> Path:
+        return self.project_root / "data" / "processed"
 
     @property
     def outputs_tables_dir(self) -> Path:

@@ -1,6 +1,6 @@
 step,owner,status
-Crear split externo estratificado y guardarlo,notebook,hecho
-Guardar configuracion formal del split/CV,notebook,hecho
-Calcular metricas CV base vs extendido por candidata,notebook,hecho
-Aplicar regla de decision y exportar aceptar/rechazar,notebook,hecho
-Generar resumen final para memoria,notebook,hecho
+Crear split externo estratificado y guardarlo,script,hecho
+Guardar configuracion formal del split/CV,script,hecho
+Calcular metricas CV base vs extendido por candidata,script,hecho
+Aplicar regla de decision y exportar aceptar/rechazar,script,hecho
+Generar resumen final para memoria,script,hecho
