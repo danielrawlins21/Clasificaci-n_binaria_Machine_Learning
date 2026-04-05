@@ -1,0 +1,5 @@
+objective,decision,n_candidates
+accuracy,aceptar,4
+accuracy,rechazar,3
+recall,aceptar,4
+recall,rechazar,3
