@@ -1,0 +1,43 @@
+{
+  "rfe_features": [
+    "nominal__V1_4.0",
+    "nominal__V1_24.0",
+    "nominal__V1_31.0",
+    "numeric__V20",
+    "numeric__V8"
+  ],
+  "tree_features": [
+    "numeric__V8",
+    "numeric__V20",
+    "numeric__V17",
+    "numeric__V11",
+    "numeric__V5",
+    "numeric__V18",
+    "numeric__V7",
+    "numeric__V14"
+  ],
+  "best_params_accuracy": {
+    "activation": "relu",
+    "alpha": 0.01,
+    "early_stopping": true,
+    "hidden_layer_sizes": [
+      64
+    ],
+    "learning_rate_init": 0.005,
+    "max_iter": 1000,
+    "solver": "adam"
+  },
+  "best_params_recall": {
+    "activation": "relu",
+    "alpha": 0.01,
+    "early_stopping": true,
+    "hidden_layer_sizes": [
+      64
+    ],
+    "learning_rate_init": 0.005,
+    "max_iter": 1000,
+    "solver": "adam"
+  },
+  "threshold_accuracy": 0.45,
+  "threshold_recall": 0.1
+}
