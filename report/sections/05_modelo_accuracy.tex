@@ -1,11 +1,53 @@
-\section{RFE con regresión logística y red neuronal optimizada en Accuracy}
+\section{Modelo orientado a Accuracy}
 
-En esta sección se presenta la selección de cinco variables mediante RFE con regresión logística y el posterior ajuste de una red neuronal optimizada para Accuracy mediante búsqueda paramétrica exhaustiva.
+El diseño inicial de esta fase se basó en una cadena \textit{RFE + MLP}: primero se realizó selección de variables con RFE (estimador lineal) y, sobre ese subconjunto, se entrenó una red neuronal multicapa optimizada con validación cruzada estratificada. Como paso posterior, y manteniendo el mismo protocolo experimental, se evaluaron modelos alternativos de ensamble para intentar mejorar la métrica objetivo (\textit{Accuracy}).
 
-\subsection{Selección de variables}
+El criterio de selección se mantuvo constante durante toda la fase: elección por rendimiento en validación interna y evaluación final en el conjunto de test bloqueado, sin recalibrar umbrales con información de test.
 
-Se incluirán los resultados de RFE y la justificación de la selección final de cinco variables.
+\subsection{Selección de variables con RFE}
 
-\subsection{Ajuste de la red neuronal}
+Sobre la representación preprocesada del bloque lineal se aplicó RFE con regresión logística, fijando $k=5$ variables. El subconjunto seleccionado en esta etapa fue:
 
-Se documentará el espacio de hiperparámetros explorado, la métrica principal y la selección del umbral final.
+\begin{itemize}
+	\item \texttt{nominal\_\_V1\_4.0}
+	\item \texttt{nominal\_\_V1\_24.0}
+	\item \texttt{nominal\_\_V1\_31.0}
+	\item \texttt{numeric\_\_V20}
+	\item \texttt{numeric\_\_V8}
+\end{itemize}
+
+Este bloque produjo un modelo base competitivo y permitió establecer una referencia inicial para Accuracy en test.
+
+\subsection{Ajuste del modelo y selección final}
+
+En una primera iteración se optimizó una MLP con \texttt{GridSearchCV} sobre arquitectura, activación, regularización y tasa de aprendizaje. Esa variante obtuvo un rendimiento de referencia de aproximadamente \textbf{0.8559} en Accuracy sobre test.
+
+Dado que existía margen de mejora, se ejecutó una segunda iteración de búsqueda sobre modelos de ensamble de árboles (Random Forest y Extra Trees), manteniendo validación cruzada estratificada y selección de umbral en validación interna. El mejor candidato por validación cruzada fue \textbf{Random Forest}, adoptado como modelo final de Accuracy.
+
+\begin{table}[h]
+\centering
+\caption{Resultados finales del modelo orientado a Accuracy (test)}
+\begin{tabular}{|l|c|}
+\hline
+Modelo final & \texttt{RF\_Accuracy} \\
+\hline
+Umbral de decisión & 0.49 \\
+\hline
+Accuracy & 0.9492 \\
+\hline
+Recall & 0.8156 \\
+\hline
+Precision & 0.9200 \\
+\hline
+F1-score & 0.8647 \\
+\hline
+ROC-AUC & 0.9211 \\
+\hline
+PR-AUC & 0.8968 \\
+\hline
+Matriz de confusión $(TN,FP,FN,TP)$ & $(557,10,26,115)$ \\
+\hline
+\end{tabular}
+\end{table}
+
+La mejora respecto al baseline MLP fue sustancial: $0.9492 - 0.8559 = 0.0933$ puntos absolutos de Accuracy. Este resultado confirma que, para el objetivo de calidad global de clasificación, el ensamble de árboles captura mejor la estructura no lineal del problema en comparación con el modelo neuronal inicial.
