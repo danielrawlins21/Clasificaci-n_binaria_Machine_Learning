@@ -78,6 +78,12 @@ class ProjectConfig:
     phase2_precision_tolerance_rec: float = 0.02
     phase2_prauc_tolerance_rec: float = 0.02
     phase2_std_increase_limit: float = 0.20
+    phase3_accuracy_threshold_grid: Tuple[float, ...] = tuple(round(0.10 + i * 0.01, 2) for i in range(81))
+    phase3_recall_threshold_grid: Tuple[float, ...] = tuple(round(0.05 + i * 0.01, 2) for i in range(66))
+    phase3_recall_min_precision: float = 0.28
+    phase3_recall_min_prauc: float = 0.35
+    phase3_rf_n_iter: int = 24
+    phase3_et_n_iter: int = 24
 
     # Variables según conocimiento de dominio del enunciado
     id_columns: Tuple[str, ...] = ("V4",)
@@ -114,6 +120,13 @@ class ProjectConfig:
         "Calcular metricas CV base vs extendido por candidata",
         "Aplicar regla de decision y exportar aceptar/rechazar",
         "Generar resumen final para memoria",
+    )
+    phase3_artifact_filenames: Tuple[str, ...] = (
+        "fase3_threshold_search_accuracy.csv",
+        "fase3_threshold_search_recall.csv",
+        "fase3_rfe_tree_mlp_comparison.csv",
+        "fase3_rfe_selected_features.csv",
+        "fase3_tree_selected_features.csv",
     )
 
     @property

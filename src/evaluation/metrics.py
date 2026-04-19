@@ -7,6 +7,15 @@ import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import (
+    accuracy_score,
+    average_precision_score,
+    confusion_matrix,
+    f1_score,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+)
 from sklearn.model_selection import StratifiedKFold, cross_validate, train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
@@ -64,7 +73,8 @@ def evaluate_cv_metrics(
         steps=[
             ("prep", build_phase2_preprocessor(X)),
             ("clf", LogisticRegression(max_iter=1000, random_state=random_state, solver="lbfgs")),
-        ]
+        ],
+        memory=None,
     )
     scores = cross_validate(
         model,
@@ -87,4 +97,22 @@ def evaluate_cv_metrics(
         "prauc_mean": float(np.mean(scores["test_prauc"])),
         "acc_std": float(np.std(scores["test_accuracy"], ddof=1)),
         "recall_std": float(np.std(scores["test_recall"], ddof=1)),
+    }
+
+
+def compute_metrics_at_threshold(
+    y_true: np.ndarray,
+    y_prob: np.ndarray,
+    threshold: float,
+) -> Dict[str, float | list[int]]:
+    y_pred = (y_prob >= threshold).astype(int)
+    return {
+        "threshold": float(threshold),
+        "accuracy": float(accuracy_score(y_true, y_pred)),
+        "recall": float(recall_score(y_true, y_pred, zero_division=0)),
+        "precision": float(precision_score(y_true, y_pred, zero_division=0)),
+        "f1": float(f1_score(y_true, y_pred, zero_division=0)),
+        "roc_auc": float(roc_auc_score(y_true, y_prob)),
+        "pr_auc": float(average_precision_score(y_true, y_prob)),
+        "tn_fp_fn_tp": confusion_matrix(y_true, y_pred).ravel().tolist(),
     }
