@@ -22,7 +22,53 @@ Este bloque produjo un modelo base competitivo y permitió establecer una refere
 
 En una primera iteración se optimizó una MLP con \texttt{GridSearchCV} sobre arquitectura, activación, regularización y tasa de aprendizaje. Esa variante obtuvo un rendimiento de referencia de aproximadamente \textbf{0.8559} en Accuracy sobre test.
 
+Para documentar explícitamente la búsqueda paramétrica, la \cref{tab:acc_hparams_mlp} resume el espacio de hiperparámetros evaluado para el baseline neuronal y la configuración finalmente seleccionada por validación cruzada.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Accuracy (baseline MLP): hiperparámetros probados vs elegidos}
+\label{tab:acc_hparams_mlp}
+\begin{tabular}{p{0.36\textwidth}p{0.38\textwidth}p{0.20\textwidth}}
+\toprule
+\textbf{Hiperparámetro} & \textbf{Valores probados} & \textbf{Elegido} \\
+\midrule
+\texttt{hidden\_layer\_sizes} & \texttt{(32,)}, \texttt{(64,)}, \texttt{(32,16)} & \texttt{(64,)} \\
+\texttt{activation} & \texttt{relu}, \texttt{tanh} & \texttt{relu} \\
+\texttt{alpha} & \texttt{1e-4}, \texttt{1e-3}, \texttt{1e-2} & \texttt{1e-2} \\
+\texttt{learning\_rate\_init} & \texttt{1e-3}, \texttt{5e-3} & \texttt{5e-3} \\
+\texttt{solver} & \texttt{adam} & \texttt{adam} \\
+\texttt{max\_iter} & \texttt{1000} & \texttt{1000} \\
+\texttt{early\_stopping} & \texttt{True} & \texttt{True} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+El grid MLP combinó 36 configuraciones ($3\times2\times3\times2$; con \texttt{solver}, \texttt{max\_iter} y \texttt{early\_stopping} fijos), evaluadas con validación cruzada estratificada.
+
 Dado que existía margen de mejora, se ejecutó una segunda iteración de búsqueda sobre modelos de ensamble de árboles (Random Forest y Extra Trees), manteniendo validación cruzada estratificada y selección de umbral en validación interna. El mejor candidato por validación cruzada fue \textbf{Random Forest}, adoptado como modelo final de Accuracy.
+
+La \cref{tab:acc_hparams_rf} resume la segunda fase de tuning para el modelo finalmente desplegado en este bloque.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Accuracy (modelo final RF): hiperparámetros probados vs elegidos}
+\label{tab:acc_hparams_rf}
+\begin{tabular}{p{0.36\textwidth}p{0.38\textwidth}p{0.20\textwidth}}
+\toprule
+\textbf{Hiperparámetro} & \textbf{Valores probados} & \textbf{Elegido} \\
+\midrule
+\texttt{n\_estimators} & \texttt{300}, \texttt{500}, \texttt{700} & \texttt{500} \\
+\texttt{max\_depth} & \texttt{None}, \texttt{10}, \texttt{14}, \texttt{20} & \texttt{10} \\
+\texttt{min\_samples\_leaf} & \texttt{1}, \texttt{2}, \texttt{4}, \texttt{8} & \texttt{4} \\
+\texttt{max\_features} & \texttt{sqrt}, \texttt{0.6}, \texttt{0.8} & \texttt{0.6} \\
+\texttt{class\_weight} & \texttt{None}, \texttt{balanced}, \texttt{balanced\_subsample} & \texttt{None} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+En esta segunda fase se utilizó \texttt{RandomizedSearchCV} con 24 iteraciones sobre el espacio anterior, priorizando Accuracy en validación cruzada estratificada.
 
 \begin{table}[h]
 \centering

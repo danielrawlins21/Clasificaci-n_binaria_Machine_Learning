@@ -14,7 +14,51 @@ El baseline de esta etapa (\texttt{Tree\_MLP\_Recall}) alcanzó un \textbf{Recal
 
 Para incrementar sensibilidad se ejecutó una búsqueda aleatoria sobre modelos de ensamble de árboles (Random Forest y Extra Trees), con selección primaria por \textit{CV Recall} y guardrails para evitar soluciones degeneradas: restricción de precisión mínima y control de PR-AUC durante la selección de umbral.
 
+Con el fin de hacer trazable la búsqueda paramétrica, la \cref{tab:rec_hparams_mlp} resume el baseline neuronal (árbol + MLP) y la \cref{tab:rec_hparams_et} documenta el ajuste del modelo final de ensamble.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Recall (baseline MLP): hiperparámetros probados vs elegidos}
+\label{tab:rec_hparams_mlp}
+\begin{tabular}{p{0.36\textwidth}p{0.38\textwidth}p{0.20\textwidth}}
+\toprule
+\textbf{Hiperparámetro} & \textbf{Valores probados} & \textbf{Elegido} \\
+\midrule
+\texttt{hidden\_layer\_sizes} & \texttt{(32,)}, \texttt{(64,)}, \texttt{(32,16)} & \texttt{(64,)} \\
+\texttt{activation} & \texttt{relu}, \texttt{tanh} & \texttt{relu} \\
+\texttt{alpha} & \texttt{1e-4}, \texttt{1e-3}, \texttt{1e-2} & \texttt{1e-2} \\
+\texttt{learning\_rate\_init} & \texttt{1e-3}, \texttt{5e-3} & \texttt{5e-3} \\
+\texttt{solver} & \texttt{adam} & \texttt{adam} \\
+\texttt{max\_iter} & \texttt{1000} & \texttt{1000} \\
+\texttt{early\_stopping} & \texttt{True} & \texttt{True} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+La rejilla MLP evaluó 36 combinaciones con validación cruzada estratificada y scoring primario en Recall.
+
 El mejor candidato fue \textbf{Extra Trees}, adoptado como modelo final de Recall bajo la etiqueta \texttt{ET\_Recall}. El umbral final seleccionado en validación fue \textbf{0.14}.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Recall (modelo final ET): hiperparámetros probados vs elegidos}
+\label{tab:rec_hparams_et}
+\begin{tabular}{p{0.36\textwidth}p{0.38\textwidth}p{0.20\textwidth}}
+\toprule
+\textbf{Hiperparámetro} & \textbf{Valores probados} & \textbf{Elegido} \\
+\midrule
+\texttt{n\_estimators} & \texttt{300}, \texttt{500}, \texttt{700} & \texttt{300} \\
+\texttt{max\_depth} & \texttt{None}, \texttt{10}, \texttt{14}, \texttt{20} & \texttt{14} \\
+\texttt{min\_samples\_leaf} & \texttt{1}, \texttt{2}, \texttt{4}, \texttt{8} & \texttt{8} \\
+\texttt{max\_features} & \texttt{sqrt}, \texttt{0.6}, \texttt{0.8} & \texttt{0.6} \\
+\texttt{class\_weight} & \texttt{None}, \texttt{balanced} & \texttt{balanced} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Para ET se aplicó \texttt{RandomizedSearchCV} con 24 iteraciones y selección por Recall en validación cruzada, seguida de ajuste de threshold con guardrails de precisión mínima y PR-AUC.
 
 \begin{table}[h]
 \centering
