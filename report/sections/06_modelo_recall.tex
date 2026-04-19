@@ -1,13 +1,45 @@
-\section{Árbol de decisión y red neuronal optimizada en Recall}
+\section{Modelo orientado a Recall}
 
-En esta sección se entrena un árbol de decisión para identificar variables relevantes y se construye una red neuronal posterior optimizada para Recall con búsqueda paramétrica exhaustiva.
+El objetivo de este bloque es maximizar la capacidad de captación de clientes con churn (sensibilidad), manteniendo un protocolo estricto de validación para evitar fugas de información. El flujo inicial se construyó con un árbol de decisión para priorizar variables y una MLP optimizada en \textit{Recall}. Posteriormente, se ejecutó una optimización adicional con modelos de ensamble para mejorar todavía más la cobertura de positivos.
 
-Esta sección desarrolla el bloque de árbol de decisión y red neuronal para Recall, siguiendo las reglas comunes de partición, validación, umbral y métricas definidas en el protocolo experimental.
+Todas las decisiones de selección (hiperparámetros y umbral) se tomaron exclusivamente en validación interna estratificada, reservando el conjunto de test para evaluación final.
 
-\subsection{Importancia de variables}
+\subsection{Selección inicial de variables con árbol}
 
-Se detallará el criterio seguido para seleccionar las variables más relevantes a partir del árbol.
+En la etapa base se entrenó un árbol de decisión y se seleccionaron las variables más relevantes por importancia (top-$k$, con $k=8$). Este paso permitió construir un primer subconjunto dirigido a Recall, sobre el cual se entrenó el modelo neuronal de referencia del bloque.
 
-\subsection{Ajuste de la red neuronal}
+El baseline de esta etapa (\texttt{Tree\_MLP\_Recall}) alcanzó un \textbf{Recall de 0.6099} en test, estableciendo el punto de partida para la fase de mejora.
 
-Se presentarán los hiperparámetros evaluados, el umbral seleccionado y la evaluación completa del modelo.
+\subsection{Optimización final del modelo de Recall}
+
+Para incrementar sensibilidad se ejecutó una búsqueda aleatoria sobre modelos de ensamble de árboles (Random Forest y Extra Trees), con selección primaria por \textit{CV Recall} y guardrails para evitar soluciones degeneradas: restricción de precisión mínima y control de PR-AUC durante la selección de umbral.
+
+El mejor candidato fue \textbf{Extra Trees}, adoptado como modelo final de Recall bajo la etiqueta \texttt{ET\_Recall}. El umbral final seleccionado en validación fue \textbf{0.14}.
+
+\begin{table}[h]
+\centering
+\caption{Resultados finales del modelo orientado a Recall (test)}
+\begin{tabular}{|l|c|}
+\hline
+Modelo final & \texttt{ET\_Recall} \\
+\hline
+Umbral de decisión & 0.14 \\
+\hline
+Recall & 0.9433 \\
+\hline
+Precision & 0.2989 \\
+\hline
+Accuracy & 0.5480 \\
+\hline
+F1-score & 0.4539 \\
+\hline
+ROC-AUC & 0.9265 \\
+\hline
+PR-AUC & 0.8809 \\
+\hline
+Matriz de confusión $(TN,FP,FN,TP)$ & $(255,312,8,133)$ \\
+\hline
+\end{tabular}
+\end{table}
+
+La mejora sobre el baseline fue notable: $0.9433 - 0.6099 = 0.3334$ puntos absolutos de Recall. Este resultado confirma que el modelo final prioriza fuertemente la detección de positivos (coste de falsos negativos muy bajo), a cambio de una reducción en precisión y accuracy, comportamiento coherente con un objetivo de negocio centrado en cobertura máxima de churn.
