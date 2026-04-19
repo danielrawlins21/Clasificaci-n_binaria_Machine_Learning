@@ -6,22 +6,31 @@ Esta sección recoge la comparación final entre ambos enfoques. Se analizan su 
 
 Ambos modelos se evaluaron con el protocolo establecido: split externo fijo (75\% entrenamiento, 25\% test) y validación cruzada estratificada (5-fold) para la selección de variables y threshold.
 
+Para mantener trazabilidad, la selección de umbral en validación se apoya en las tablas \texttt{fase3\_threshold\_search\_accuracy.csv} y \texttt{fase3\_threshold\_search\_recall.csv}, mientras que la comparación final en test se resume en \texttt{fase3\_rfe\_tree\_mlp\_comparison.csv}.
+
 \subsubsection{Métricas finales}
 
 \begin{table}[h]
 \centering
 \small
-\begin{tabular}{lcccccc}
+\begin{tabular}{lccccccc}
 \toprule
-\textbf{Modelo} & \textbf{Umbral} & \textbf{Accuracy} & \textbf{Recall} & \textbf{Precisión} & \textbf{F1} & \textbf{ROC-AUC} \\
+\textbf{Modelo} & \textbf{Umbral} & \textbf{Accuracy} & \textbf{Recall} & \textbf{Precisión} & \textbf{F1} & \textbf{ROC-AUC} & \textbf{PR-AUC} \\
 \midrule
-ET\_Recall  & 0.14 & 0.548 & 0.943 & 0.299 & 0.454 & 0.927 \\
-RF\_Accuracy & 0.49 & 0.949 & 0.816 & 0.920 & 0.865 & 0.921 \\
+ET\_Recall  & 0.14 & 0.548 & 0.943 & 0.299 & 0.454 & 0.927 & 0.881 \\
+RF\_Accuracy & 0.49 & 0.949 & 0.816 & 0.920 & 0.865 & 0.921 & 0.897 \\
 \bottomrule
 \end{tabular}
 \caption{Desempeño final en el conjunto de test. ET: Extra Trees. RF: Random Forest.}
 \label{tab:final_performance}
 \end{table}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.92\textwidth]{figures/fase3_model_comparison_bars.png}
+\caption{Comparación visual de métricas en test para RF\_Accuracy y ET\_Recall.}
+\label{fig:comparacion_global_barras}
+\end{figure}
 
 \textbf{Interpretación:}
 \begin{itemize}
@@ -38,9 +47,23 @@ El análisis del espacio de threshold muestra cómo cada modelo se comporta ante
   \item \textbf{ET\_Recall}: El recall se mantiene alto (>0.94) para thresholds entre 0.05 y 0.33, confirmando la robustez de la clasificación positiva. Sin embargo, el accuracy se mantiene bajo debido a los falsos positivos: a threshold 0.14 (óptimo por recall en validación), hay 312 falsos positivos frente a 255 verdaderos negativos en el test.
 \end{itemize}
 
-\textbf{Intuición biológica:} ET aprende a ser muy sensible a los \textit{patrones de churn}, disparando alertas en muchos casos (incluso si no son realmente churn). RF aprende a ser más conservador, activándose solo cuando los patrones son suficientemente claros.
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fase3_threshold_tradeoff_accuracy.png}
+\caption{RF\_Accuracy: evolución de Accuracy, Recall y Precisión frente al threshold en validación.}
+\label{fig:threshold_accuracy}
+\end{figure}
 
-\subsection{Sensibilidad del guardrails para Recall}
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fase3_threshold_tradeoff_recall.png}
+\caption{ET\_Recall: evolución de Recall, Precisión y Accuracy frente al threshold en validación.}
+\label{fig:threshold_recall}
+\end{figure}
+
+\textbf{Intuición operativa:} ET aprende a ser muy sensible a los \textit{patrones de churn}, disparando alertas en muchos casos (incluso si no son realmente churn). RF aprende a ser más conservador, activándose solo cuando los patrones son suficientemente claros.
+
+\subsection{Sensibilidad de los guardrails para Recall}
 
 El modelo ET\_Recall satisface los guardrails diseñados:
 

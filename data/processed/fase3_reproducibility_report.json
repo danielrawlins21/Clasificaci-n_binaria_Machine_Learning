@@ -1,68 +1,46 @@
 {
-  "fecha_ejecucion": "2026-04-16T23:15:12.036236",
+  "fecha_ejecucion": "2026-04-19T19:45:50.167118",
   "versions": {
-    "python": "3.10.13",
-    "sklearn": "1.7.2",
-    "pandas": "2.3.3",
-    "numpy": "2.2.6"
+    "python": "3.12.3",
+    "sklearn": "1.8.0",
+    "pandas": "3.0.2",
+    "numpy": "2.4.4"
   },
   "configuracion_experimento": {
     "random_state": 42,
     "test_size": 0.2,
     "n_splits_cv": 5,
-    "rfe_n_features": 5,
-    "tree_top_k": 8
+    "phase3_recall_min_precision": 0.28,
+    "phase3_recall_min_prauc": 0.35
   },
   "datos_base": {
-    "dataset_shape_bruto": [
-      9200,
-      21
-    ],
-    "dataset_shape_procesado": [
-      3538,
-      16
-    ],
-    "duplicates_removed": 5662,
+    "metadata": {
+      "n_rows_raw": 9200,
+      "n_rows_model_base": 3538,
+      "duplicates_removed": 5662,
+      "dropped_columns": [
+        "V10",
+        "V13",
+        "V16",
+        "V19",
+        "V4"
+      ]
+    },
     "split_train_val_test": {
       "train_val": 2830,
       "test": 708
     }
   },
   "modelos_entrenados": {
-    "rfe_n_features_seleccionadas": 5,
-    "rfe_features": [
-      "nominal__V1_4.0",
-      "nominal__V1_24.0",
-      "nominal__V1_31.0",
-      "numeric__V20",
-      "numeric__V8"
-    ],
-    "best_params_accuracy": {
-      "n_estimators": 300,
-      "min_samples_leaf": 1,
-      "max_features": 0.6,
-      "max_depth": null
-    },
-    "best_params_recall": {
-      "n_estimators": 300,
-      "min_samples_leaf": 8,
-      "max_features": 0.6,
-      "max_depth": 14,
-      "class_weight": "balanced"
-    },
-    "threshold_accuracy": 0.49,
+    "model_accuracy": "RF_Accuracy",
+    "model_recall": "ET_Recall",
+    "threshold_accuracy": 0.45,
     "threshold_recall": 0.14
   },
-  "rutas_salida": {
-    "outputs_tables": "D:\\Copias de seguridad\\2025-2026\\Master UCM\\Módulo 11\\Tarea\\outputs\\tables",
-    "data_processed": "D:\\Copias de seguridad\\2025-2026\\Master UCM\\Módulo 11\\Tarea\\data\\processed",
-    "artefactos_generados": [
-      "fase3_rfe_tree_mlp_comparison.csv",
-      "fase3_rfe_selected_features.csv",
-      "fase3_tree_selected_features.csv",
-      "fase3_threshold_search_accuracy.csv",
-      "fase3_threshold_search_recall.csv",
-      "fase3_model_selection_summary.json"
-    ]
+  "checks": {
+    "train_test_disjoint": true,
+    "threshold_acc_valid": true,
+    "threshold_rec_valid": true,
+    "artifacts_exist": true
   }
 }

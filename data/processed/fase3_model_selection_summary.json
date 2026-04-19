@@ -1,26 +1,30 @@
 {
   "rfe_features": [
-    "nominal__V1_4.0",
-    "nominal__V1_24.0",
-    "nominal__V1_31.0",
+    "numeric__V8",
     "numeric__V20",
-    "numeric__V8"
+    "numeric__V5",
+    "numeric__V11",
+    "numeric__V17",
+    "numeric__V18",
+    "numeric__V14",
+    "numeric__V7"
   ],
   "tree_features": [
     "numeric__V8",
     "numeric__V20",
-    "numeric__V17",
-    "numeric__V11",
     "numeric__V5",
+    "numeric__V11",
+    "numeric__V6",
     "numeric__V18",
-    "numeric__V7",
+    "numeric__V17",
     "numeric__V14"
   ],
   "best_params_accuracy": {
-    "n_estimators": 300,
-    "min_samples_leaf": 1,
+    "n_estimators": 500,
+    "min_samples_leaf": 4,
     "max_features": 0.6,
-    "max_depth": null
+    "max_depth": 10,
+    "class_weight": null
   },
   "best_params_recall": {
     "n_estimators": 300,
@@ -29,6 +33,6 @@
     "max_depth": 14,
     "class_weight": "balanced"
   },
-  "threshold_accuracy": 0.49,
+  "threshold_accuracy": 0.45,
   "threshold_recall": 0.14
 }

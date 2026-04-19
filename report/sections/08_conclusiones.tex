@@ -10,8 +10,8 @@ Este trabajo implementó un protocolo completo de machine learning para predecir
 
 Se identificaron y documentaron sistemáticamente:
 \begin{itemize}
-  \item \textbf{Calidad}: ausencia de valores faltantes en variables clave; eliminación de 3 variables con duplicación completa.
-  \item \textbf{Representatividad}: el dataset es desbalanceado pero representativo (18\% churn vs 82\% no-churn).
+  \item \textbf{Calidad}: presencia de faltantes de baja magnitud (inferiores al 1\%) en un conjunto reducido de variables, junto con una estrategia explícita de depuración previa al modelado.
+  \item \textbf{Representatividad}: identificación de cambios de distribución tras la deduplicación, lo que justificó mantener estratificación en la partición externa y en validación interna.
   \item \textbf{Trazabilidad}: auditoría exhaustiva permitió garantizar no-leakage en todas las fases posteriores.
 \end{itemize}
 
@@ -38,9 +38,9 @@ Se compararon dos enfoques contrastantes:
 \subsubsection{Limitaciones técnicas}
 
 \begin{itemize}
-  \item \textbf{Tamaño de dataset}: el dataset tiene 3720 muestras ($n = 3720$), lo que es adecuado para validación cruzada pero marginal para garantizar estabilidad en modelos muy complejos. Los intervalos de confianza podrían ser más amplios.
+  \item \textbf{Tamaño de dataset}: tras la depuración, el conjunto de modelado quedó en 3538 muestras ($n = 3538$), adecuado para validación cruzada, pero todavía con margen para reducir incertidumbre en modelos más complejos.
   \item \textbf{Selección de algoritmos}: se compararon solo Random Forest y Extra Trees. Otros enfoques (redes neuronales, gradient boosting, SVM) no fueron explorados en profundidad, aunque forman parte de las recomendaciones futuras.
-  \item \textbf{Desbalance de clases}: aunque se usó estratificación en toda la validación, el desbalance 82:18 implica que el recall es menos estable que el accuracy. Las métricas de minoridad podrían beneficiarse de técnicas como SMOTE en trabajo futuro.
+  \item \textbf{Distribución de clases}: aunque se usó estratificación en toda la validación, la distribución efectiva tras depuración exige interpretar conjuntamente métricas globales (Accuracy) y de clase positiva (Recall/PR-AUC). Las métricas de minoridad podrían beneficiarse de técnicas como SMOTE en trabajo futuro.
 \end{itemize}
 
 \subsubsection{Limitaciones operativas}
