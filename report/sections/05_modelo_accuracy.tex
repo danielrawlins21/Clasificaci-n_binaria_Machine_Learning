@@ -20,9 +20,16 @@ Este bloque produjo un modelo base competitivo y permitió establecer una refere
 
 \subsection{Ajuste del modelo y selección final}
 
-En una primera iteración se optimizó una MLP con \texttt{GridSearchCV} sobre arquitectura, activación, regularización y tasa de aprendizaje. Esa variante obtuvo un rendimiento de referencia de aproximadamente \textbf{0.8559} en Accuracy sobre test.
+En una primera iteración se optimizó una MLP con \texttt{GridSearchCV} y se obtuvo un rendimiento de referencia de aproximadamente \textbf{0.8559} en Accuracy sobre test.
 
 Para documentar explícitamente la búsqueda paramétrica, la \cref{tab:acc_hparams_mlp} resume el espacio de hiperparámetros evaluado para el baseline neuronal y la configuración finalmente seleccionada por validación cruzada.
+
+\begin{lstlisting}[caption={Búsqueda compacta en Accuracy},label={lst:accuracy_search}]
+grid_acc = GridSearchCV(MLPClassifier(random_state=cfg.random_state),
+						param_grid_acc, scoring="accuracy", cv=cv)
+threshold_acc, _ = select_threshold(y_train.to_numpy(), proba_cv_acc,
+									policy_acc, np.array(default_cfg["threshold_grid"]))
+\end{lstlisting}
 
 \begin{table}[h]
 \centering
@@ -68,7 +75,7 @@ La \cref{tab:acc_hparams_rf} resume la segunda fase de tuning para el modelo fin
 \end{tabular}
 \end{table}
 
-En esta segunda fase se utilizó \texttt{RandomizedSearchCV} con 24 iteraciones sobre el espacio anterior, priorizando Accuracy en validación cruzada estratificada.
+En la segunda fase se utilizó \texttt{RandomizedSearchCV} con 24 iteraciones, priorizando Accuracy en validación cruzada.
 
 \begin{table}[h]
 \centering

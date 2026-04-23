@@ -53,6 +53,12 @@ La selección de umbral se realiza exclusivamente con predicciones de validació
 
 El umbral final elegido en validación se aplica una única vez sobre test.
 
+\begin{lstlisting}[caption={Protocolo resumido},label={lst:protocolo_resumido}]
+cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+threshold, table = select_threshold(y_train, proba_cv, policy,
+									np.array(default_cfg["threshold_grid"]))
+\end{lstlisting}
+
 \subsection{Métricas}
 
 Las métricas comunes para todos los experimentos son:
@@ -67,4 +73,4 @@ Las métricas comunes para todos los experimentos son:
 	\item matriz de confusión.
 \end{itemize}
 
-La métrica primaria cambia según el objetivo del apartado (Accuracy en el modelo 1 y Recall en el modelo 2), pero la interpretación final se realiza siempre de forma multivariable para evitar conclusiones sesgadas por un único indicador.
+La métrica primaria cambia según el objetivo del apartado; el resto de métricas se reportan para evitar conclusiones sesgadas por un único indicador.

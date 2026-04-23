@@ -1,6 +1,6 @@
 \section{Modelo orientado a Recall}
 
-El objetivo de este bloque es maximizar la capacidad de captación de clientes con churn (sensibilidad), manteniendo un protocolo estricto de validación para evitar fugas de información. El flujo inicial se construyó con un árbol de decisión para priorizar variables y una MLP optimizada en \textit{Recall}. Posteriormente, se ejecutó una optimización adicional con modelos de ensamble para mejorar todavía más la cobertura de positivos.
+El objetivo de este bloque es maximizar la captación de clientes con churn (sensibilidad) con un protocolo estricto de validación. El flujo inicial se construyó con un árbol de decisión y una MLP optimizada en \textit{Recall}; después se afinó con modelos de ensamble.
 
 Todas las decisiones de selección (hiperparámetros y umbral) se tomaron exclusivamente en validación interna estratificada, reservando el conjunto de test para evaluación final.
 
@@ -15,6 +15,13 @@ El baseline de esta etapa (\texttt{Tree\_MLP\_Recall}) alcanzó un \textbf{Recal
 Para incrementar sensibilidad se ejecutó una búsqueda aleatoria sobre modelos de ensamble de árboles (Random Forest y Extra Trees), con selección primaria por \textit{CV Recall} y guardrails para evitar soluciones degeneradas: restricción de precisión mínima y control de PR-AUC durante la selección de umbral.
 
 Con el fin de hacer trazable la búsqueda paramétrica, la \cref{tab:rec_hparams_mlp} resume el baseline neuronal (árbol + MLP) y la \cref{tab:rec_hparams_et} documenta el ajuste del modelo final de ensamble.
+
+\begin{lstlisting}[caption={Búsqueda compacta en Recall},label={lst:recall_search}]
+grid_rec = RandomizedSearchCV(et_estimator, param_distributions, n_iter=24,
+							  scoring="recall", cv=cv, random_state=cfg.random_state)
+threshold_rec, _ = select_threshold(y_train.to_numpy(), proba_cv_rec,
+									policy_rec, np.array(default_cfg["threshold_grid"]))
+\end{lstlisting}
 
 \begin{table}[h]
 \centering
@@ -58,7 +65,7 @@ El mejor candidato fue \textbf{Extra Trees}, adoptado como modelo final de Recal
 \end{tabular}
 \end{table}
 
-Para ET se aplicó \texttt{RandomizedSearchCV} con 24 iteraciones y selección por Recall en validación cruzada, seguida de ajuste de threshold con guardrails de precisión mínima y PR-AUC.
+Para ET se aplicó \texttt{RandomizedSearchCV} con 24 iteraciones y ajuste de threshold con guardrails de precisión mínima y PR-AUC.
 
 \begin{table}[h]
 \centering
