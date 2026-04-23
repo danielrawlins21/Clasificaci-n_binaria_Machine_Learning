@@ -34,15 +34,26 @@
 		citecolor=blue
 }
 
+\lstdefinestyle{pythoncompact}{
+	language=Python,
+	basicstyle=\ttfamily\scriptsize,
+	keywordstyle=\color{blue},
+	stringstyle=\color{green!60!black},
+	commentstyle=\color{gray},
+	showstringspaces=false,
+	breaklines=true,
+	breakatwhitespace=false,
+	columns=fullflexible,
+	keepspaces=true,
+	tabsize=4,
+	frame=single,
+	xleftmargin=0.8em,
+	xrightmargin=0.3em,
+	postbreak=\mbox{\textcolor{gray}{$\hookrightarrow$}\space}
+}
+
 \lstset{
-		language=Python,
-		basicstyle=\ttfamily\small,
-		keywordstyle=\color{blue},
-		stringstyle=\color{green!60!black},
-		commentstyle=\color{gray},
-		showstringspaces=false,
-		breaklines=true,
-		frame=single
+		style=pythoncompact
 }
 
 \setlength{\parskip}{0.6em}

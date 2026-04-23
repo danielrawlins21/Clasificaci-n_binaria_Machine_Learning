@@ -1,12 +1,10 @@
 \section{Comparación global}
 
-Esta sección recoge la comparación final entre ambos enfoques. Se analizan su comportamiento predictivo, interpretativo y operativo, así como la sensibilidad al umbral, la complejidad del pipeline y su utilidad práctica para churn.
+Esta sección resume la comparación final entre ambos enfoques, manteniendo foco en rendimiento en test, sensibilidad al umbral e implicaciones operativas.
 
 \subsection{Desempeño predictivo en test}
 
-Ambos modelos se evaluaron con el protocolo establecido: split externo fijo (75\% entrenamiento, 25\% test) y validación cruzada estratificada (5-fold) para la selección de variables y threshold.
-
-Para mantener trazabilidad, la selección de umbral en validación se apoya en las tablas \texttt{fase3\_threshold\_search\_accuracy.csv} y \texttt{fase3\_threshold\_search\_recall.csv}, mientras que la comparación final en test se resume en \texttt{fase3\_rfe\_tree\_mlp\_comparison.csv}.
+Ambos modelos se evaluaron con el mismo protocolo (split externo 75/25 y validación cruzada estratificada 5-fold). La selección de umbral se realizó en validación interna y el contraste final en test.
 
 \subsubsection{Métricas finales}
 
@@ -32,19 +30,15 @@ RF\_Accuracy & 0.49 & 0.949 & 0.816 & 0.920 & 0.865 & 0.921 & 0.897 \\
 \label{fig:comparacion_global_barras}
 \end{figure}
 
-\textbf{Interpretación:}
-\begin{itemize}
-  \item \textbf{RF\_Accuracy} (Random Forest, umbral 0.49): logra un \textbf{accuracy de 0.949} con \textbf{precisión 0.92}, lo que significa que identifica correctamente el 94.9\% de todos los casos y que el 92\% de sus predicciones positivas son churn real. Es el modelo más \textit{fiable} desde una perspectiva de precisión global.
-  \item \textbf{ET\_Recall} (Extra Trees, umbral 0.14): prioriza el \textbf{recall (0.943)}, capturando el 94.3\% de los casos de churn reales. Sin embargo, su accuracy es bajo (0.548) debido a la alta tasa de falsos positivos (precisión 0.299). Es un modelo \textit{sensible} pero con muchas falsas alarmas.
-\end{itemize}
+RF\_Accuracy ofrece mejor desempeño global (Accuracy y Precision altas), mientras que ET\_Recall maximiza la cobertura de churn a costa de más falsos positivos.
 
 \subsection{Trade-off entre objetivos}
 
-El análisis del espacio de threshold muestra cómo cada modelo se comporta ante variaciones del punto de corte:
+El análisis del espacio de threshold confirma un intercambio claro entre cobertura y precisión:
 
 \begin{itemize}
-  \item \textbf{RF\_Accuracy}: El accuracy aumenta hasta threshold 0.49 (0.949), donde se equilibran correctamente los verdaderos positivos (recall 0.816) y los verdaderos negativos. Incrementar el threshold más allá de 0.49 reduce el recall sin mejorar accuracy, generando pérdida de cobertura.
-  \item \textbf{ET\_Recall}: El recall se mantiene alto (>0.94) para thresholds entre 0.05 y 0.33, confirmando la robustez de la clasificación positiva. Sin embargo, el accuracy se mantiene bajo debido a los falsos positivos: a threshold 0.14 (óptimo por recall en validación), hay 312 falsos positivos frente a 255 verdaderos negativos en el test.
+  \item \textbf{RF\_Accuracy}: su mejor compromiso se alcanza en threshold 0.49.
+  \item \textbf{ET\_Recall}: mantiene recall alto con menor threshold, pero incrementa de forma notable los falsos positivos.
 \end{itemize}
 
 \begin{figure}[h]
@@ -61,70 +55,29 @@ El análisis del espacio de threshold muestra cómo cada modelo se comporta ante
 \label{fig:threshold_recall}
 \end{figure}
 
-\textbf{Intuición operativa:} ET aprende a ser muy sensible a los \textit{patrones de churn}, disparando alertas en muchos casos (incluso si no son realmente churn). RF aprende a ser más conservador, activándose solo cuando los patrones son suficientemente claros.
-
 \subsection{Sensibilidad de los guardrails para Recall}
 
-El modelo ET\_Recall satisface los guardrails diseñados:
+El modelo ET\_Recall satisface los guardrails definidos:
 
 \begin{itemize}
   \item \textbf{Precisión mínima:} 0.299 $>$ 0.25 \checkmark
   \item \textbf{PR-AUC mínimo:} 0.881 $>$ 0.80 \checkmark
 \end{itemize}
 
-Estos guardrails garantizan que, aunque ET genere muchas alertas, al menos el 25\% de ellas son churn real, y la curva precisión-recall es suficientemente buena (0.881). Sin embargo, en operación, esto implica un costo administrativo alto: revisar manualmente 312 falsas alarmas para 133 casos reales de churn.
+Por tanto, ET es válido como modelo de alta cobertura, pero con mayor carga operativa.
 
-\subsection{Interpretabilidad y complejidad}
+\subsection{Síntesis operativa}
 
-\subsubsection{Variables seleccionadas}
-
-\textbf{Random Forest (RF\_Accuracy):}
-\begin{itemize}
-  \item Variables nominales: V1\_4.0, V1\_24.0, V1\_31.0 (categorías específicas de V1)
-  \item Variables numéricas: V20, V8
-\end{itemize}
-El modelo prioriza relaciones categóricas complejas, sugiriendo que ciertos perfiles o segmentos tiene patrones de churn distintos.
-
-\textbf{Extra Trees (ET\_Recall):}
-\begin{itemize}
-  \item Top 8 variables (por importancia): V8, V20, V17, V11, V5, V18, V7, V14
-\end{itemize}
-El modelo enfatiza variables numéricas continuas, sugiriendo que el churn se predice mejor a partir de \textit{magnitudes} (montos, duración, frecuencia) que de categorías fijas.
-
-\textbf{Divergencia:} Las variables numéricas V8 y V20 aparecen en ambos modelos, pero ET incorpora más variables (8 vs 5). Esto refleja el trade-off entre precisión (RF: modelos compactos) y cobertura (ET: modelos complejos).
-
-\subsection{Utilidad práctica para churn}
-
-Considerando el contexto operativo:
-
-\subsubsection{Escenario 1: Minimizar falsos positivos (retención proactiva)}
-
-Usar \textbf{RF\_Accuracy} es más adecuado:
-\begin{itemize}
-  \item Identifica 115 clientes con riesgo real de churn (TP: 115).
-  \item Genera solo 10 falsas alarmas (FP: 10), reduciendo esfuerzo administrativo.
-  \item Razón de precisión: 92\%, es decir, 92 de cada 100 alertas son churn real.
-  \item Estrategia: Campañas de retención dirigidas a clientes de alto valor, donde la precisión es crítica.
-\end{itemize}
-
-\subsubsection{Escenario 2: Máxima cobertura (no perder ningún churn)}
-
-Usar \textbf{ET\_Recall} es más adecuado:
-\begin{itemize}
-  \item Identifica 133 clientes con riesgo de churn (TP: 133), capturando el 94.3\% de los casos reales.
-  \item Genera 312 falsas alarmas (FP: 312), requiriendo revisión manual.
-  \item Estrategia: Usar como filtro inicial en análisis exploratorio; combinarlo con revisión de experto.
-  \item Costo-beneficio: Revisión manual de 445 casos (133 TP + 312 FP) para asegurar que ningún churn se pasa por alto.
-\end{itemize}
+En términos de uso real, RF\_Accuracy es más eficiente cuando se prioriza precisión de campaña, mientras que ET\_Recall es útil como capa de exploración para no perder casos positivos.
 
 \subsection{Recomendación}
 
-Dado el contexto de un \textit{problema de retención de clientes}:
+Dado el contexto de retención de clientes:
 
 \begin{enumerate}
-  \item \textbf{En producción}: usar \textbf{RF\_Accuracy} como modelo base. Su alta precisión (0.92) reduce el costo operativo de las campañas de retención y permite focalizar recursos en clientes con riesgo confirmado.
-  \item \textbf{Para auditoría y análisis:} complementar con \textbf{ET\_Recall} para identificar posibles casos de churn ocultos que RF podría haber ignorado. Combinar ambas predicciones en un ranking de riesgo de dos niveles: ``alto riesgo confirmado'' (solo RF predice) y ``riesgo potencial'' (ET predice pero RF no).
-  \item \textbf{Monitoreo en tiempo real}: tras desplegar RF en producción, medir continuamente la tasa de churn entre clientes etiquetados como no-churn para detectar degradación del modelo.
+  \item \textbf{Producción}: usar \textbf{RF\_Accuracy} como modelo principal por su mejor precisión global.
+  \item \textbf{Análisis complementario}: usar \textbf{ET\_Recall} para ampliar cobertura y detectar casos potenciales no capturados por RF.
+  \item \textbf{Monitoreo}: revisar periódicamente accuracy/recall para detectar deriva y ajustar threshold.
 \end{enumerate}
 
-En conclusión, \textbf{Random Forest con accuracy como objetivo es el modelo superior} para este caso de uso: combina precisión operativa, interpretabilidad y eficiencia computacional. Extra Trees se retiene como \textit{modelo complementario de auditoría} para detectar patrones débiles que RF pueda haber ignorado.
+En conclusión, \textbf{RF\_Accuracy} se selecciona como modelo principal y \textbf{ET\_Recall} se mantiene como apoyo para escenarios de cobertura máxima.

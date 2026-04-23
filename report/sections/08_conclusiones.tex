@@ -1,111 +1,44 @@
 \section{Conclusiones}
 
-En esta sección se sintetizan los hallazgos principales, las limitaciones del estudio y las conclusiones metodológicas y prácticas derivadas de la comparación entre los enfoques.
+Esta sección sintetiza hallazgos, limitaciones y recomendaciones finales del trabajo.
 
 \subsection{Síntesis de hallazgos}
 
-Este trabajo implementó un protocolo completo de machine learning para predecir churn de clientes, articulado en tres fases:
+El trabajo implementó un pipeline de Machine Learning en tres fases:
 
-\subsubsection{Fase 1: Auditoría de datos}
-
-Se identificaron y documentaron sistemáticamente:
 \begin{itemize}
-  \item \textbf{Calidad}: presencia de faltantes de baja magnitud (inferiores al 1\%) en un conjunto reducido de variables, junto con una estrategia explícita de depuración previa al modelado.
-  \item \textbf{Representatividad}: identificación de cambios de distribución tras la deduplicación, lo que justificó mantener estratificación en la partición externa y en validación interna.
-  \item \textbf{Trazabilidad}: auditoría exhaustiva permitió garantizar no-leakage en todas las fases posteriores.
-\end{itemize}
-
-\subsubsection{Fase 2: Selección de candidatas}
-
-Se aplicó RFE (Recursive Feature Elimination) para identificar el conjunto mínimo de variables relevantes:
-\begin{itemize}
-  \item \textbf{Resultado}: 5 variables seleccionadas (3 nominales, 2 numéricas).
-  \item \textbf{Validación}: búsqueda exhaustiva de variables adicionales mediante Random Forest no reveló mejoras significativas.
-  \item \textbf{Implicación}: el espacio de características es comprimible; 5 variables capturan el 90\%+ de la varianza predictiva.
-\end{itemize}
-
-\subsubsection{Fase 3: Modelos finales}
-
-Se compararon dos enfoques contrastantes:
-\begin{itemize}
-  \item \textbf{RF\_Accuracy}: Random Forest optimizado para precisión global. Logra 0.949 accuracy con 0.92 precisión en test.
-  \item \textbf{ET\_Recall}: Extra Trees optimizado para sensibilidad al churn. Logra 0.943 recall capturando el 94.3\% de los casos reales.
-  \item \textbf{Conclusión}: ambos modelos son competitivos en su dominio de optimización, pero exhiben trade-offs claros y predecibles en los otros objetivos.
+  \item \textbf{Fase 1 (auditoría)}: depuración de calidad, deduplicación y control de no-leakage.
+  \item \textbf{Fase 2 (selección)}: RFE y validación de candidatas; se consolidó un conjunto compacto de variables.
+  \item \textbf{Fase 3 (modelado)}: comparación de RF\_Accuracy (0.949 de accuracy) frente a ET\_Recall (0.943 de recall).
 \end{itemize}
 
 \subsection{Limitaciones del estudio}
 
-\subsubsection{Limitaciones técnicas}
-
 \begin{itemize}
-  \item \textbf{Tamaño de dataset}: tras la depuración, el conjunto de modelado quedó en 3538 muestras ($n = 3538$), adecuado para validación cruzada, pero todavía con margen para reducir incertidumbre en modelos más complejos.
-  \item \textbf{Selección de algoritmos}: se compararon solo Random Forest y Extra Trees. Otros enfoques (redes neuronales, gradient boosting, SVM) no fueron explorados en profundidad, aunque forman parte de las recomendaciones futuras.
-  \item \textbf{Distribución de clases}: aunque se usó estratificación en toda la validación, la distribución efectiva tras depuración exige interpretar conjuntamente métricas globales (Accuracy) y de clase positiva (Recall/PR-AUC). Las métricas de minoridad podrían beneficiarse de técnicas como SMOTE en trabajo futuro.
+  \item Tamaño muestral moderado tras depuración ($n=3538$).
+  \item Comparación acotada a RF y ET (sin benchmarking amplio de otros algoritmos).
+  \item Variables anonimizadas y ausencia de costes de negocio explícitos para optimización económica.
+  \item Riesgo de deriva temporal no evaluado en esta entrega.
 \end{itemize}
 
-\subsubsection{Limitaciones operativas}
-
-\begin{itemize}
-  \item \textbf{Variables proxy}: las variables nominales V1\_4.0, V1\_24.0, V1\_31.0 son categorías codificadas. Su interpretación empresarial requiere mapeo con atributos reales (ej., ``segmento de cliente'', ``tipo de contrato''), no disponible en este análisis.
-  \item \textbf{Estacionariedad}: el modelo se entrena en datos históricos ($t_0$). No se valida cómo envejece el modelo en predicción futura; la deriva de concepto es un riesgo operativo conocido.
-  \item \textbf{Costo-beneficio}: aunque se presentan dos escenarios operativos, el análisis no incorpora costos reales de retención o valor de ciclo de vida del cliente, que podrían cambiar la recomendación.
-\end{itemize}
-
-\subsection{Conclusiones metodológicas}
+\subsection{Conclusiones metodológicas y prácticas}
 
 \begin{enumerate}
-  \item \textbf{Protocolo de Fase 1 es crítico}: invertir tiempo en auditoría inicial (missing values, duplicados, leakage) evita artefactos y resultados no reproducibles. Sin Fase 1, los resultados de Fase 3 estarían comprometidos.
-  
-  \item \textbf{RFE + validación cruzada es un enfoque robusto}: la combinación de RFE en validación cruzada (sin data snooping) garantiza que la selección de variables no está sobrefitteada al conjunto de test.
-  
-  \item \textbf{Threshold search exhaustivo proporciona transparencia}: documentar cómo accuracy, recall y precisión varían con el threshold permite a expertos de negocio elegir el punto operativo adecuado, en lugar de aceptar un umbral por defecto (0.5).
-  
-  \item \textbf{Comparación de múltiples objetivos es necesaria}: contrastar modelos optimizados para diferentes métricas (accuracy vs recall) revela trade-offs e impide optimización ciega en un único objetivo.
-  
-  \item \textbf{Reproducibilidad y modularidad son requisitos, no opcionales}: usar pipelines modularizados, semillas fijas, y reportes JSON permite que otros investigadores reproduzcan y auditen los resultados.
-\end{enumerate}
-
-\subsection{Conclusiones prácticas}
-
-\begin{enumerate}
-  \item \textbf{Recomendación de despliegue}: Random Forest (RF\_Accuracy) es el modelo recomendado para producción, combinado con Extra Trees como modelo de auditoría. Esta arquitectura de dos niveles maximiza precisión en el operativo mientras mantiene cobertura de anomalías.
-  
-  \item \textbf{Estructura de decisión}:
-  \begin{itemize}
-    \item Si solo RF predice churn: ``alto riesgo confirmado'' $\rightarrow$ acción inmediata de retención.
-    \item Si ET predice pero RF no: ``riesgo potencial'' $\rightarrow$ análisis manual o escalado.
-    \item Si ambos predicen: ``riesgo crítico'' $\rightarrow$ intervención prioritaria.
-  \end{itemize}
-  
-  \item \textbf{Monitoreo en producción}: desplegar métricas de deriva de concepto (monitoreo del accuracy y recall en datos nuevos) para detectar cuándo el modelo necesita reentrenamiento.
-  
-  \item \textbf{Validación de negocio}: tras 3--6 meses de despliegue, analizar correlación entre predicciones y churn real observado. Ajustar threshold si la precisión cae.
+  \item La auditoría inicial y el control de leakage son determinantes para la validez de resultados.
+  \item La selección de variables dentro de CV y la búsqueda de threshold mejoran robustez e interpretabilidad.
+  \item La comparación multiobjetivo (accuracy vs recall) evita decisiones sesgadas por una única métrica.
+  \item Para despliegue, \textbf{RF\_Accuracy} es el modelo principal; \textbf{ET\_Recall} queda como apoyo de cobertura.
+  \item Se recomienda monitorizar periódicamente accuracy/recall y recalibrar threshold cuando cambie el contexto.
 \end{enumerate}
 
 \subsection{Trabajo futuro}
 
 \begin{enumerate}
-  \item \textbf{Técnicas de boosting}: explorar XGBoost y LightGBM, que pueden capturar interacciones más complejas que RF/ET.
-  
-  \item \textbf{Manejo del desbalance}: aplicar SMOTE, clase-weights, o focal loss para mejorar estabilidad del recall en minoridad.
-  
-  \item \textbf{Series temporales}: si los datos tienen dimensión temporal, modelar la evolución de riesgo de churn en el tiempo (hazard models, recurrent neural networks).
-  
-  \item \textbf{Explicabilidad}: usar SHAP o LIME para descomponer predicciones por variable, permitiendo explicar a clientes por qué se consideran en riesgo.
-  
-  \item \textbf{A/B testing}: en producción, ejecutar test controlado comparando tasa de churn entre grupo de control (sin intervención) y grupo de tratamiento (con predicción RF), para cuantificar el lift real del modelo.
-  
-  \item \textbf{Mapeo de variables}: colaborar con equipos de negocio para mapear V8, V20, etc.\ a atributos interpretables (montos, duraciones, segmentos), permitiendo explicaciones más ricas.
+  \item Ampliar el benchmarking con boosting (XGBoost/LightGBM) y SVM.
+  \item Incorporar técnicas de desbalance y calibración probabilística.
+  \item Añadir explicabilidad (SHAP/LIME) y validación de impacto de negocio (A/B test).
 \end{enumerate}
 
-\subsection{Reflexión final}
+\subsection{Cierre}
 
-Este proyecto demuestra que el churn de clientes \textbf{es predecible} con alta precisión usando 5 variables seleccionadas sistemáticamente y modelos de árbol estándar. La clave no está en algoritmos sofisticados, sino en:
-\begin{itemize}
-  \item Auditoría rigurosa de datos (Fase 1).
-  \item Selección metodológica de features (Fase 2).
-  \item Trade-off explícito de objetivos según contexto operativo (Fase 3).
-  \item Reproducibilidad y documentación completa.
-\end{itemize}
-
-Los modelos están listos para despliegue en producción, con salvaguardas de no-leakage validadas y protocolos de monitoreo definidos. El siguiente paso es validación en datos nuevos y ajuste fino basado en feedback operativo.
+El churn resulta predecible con buen rendimiento cuando se combina depuración rigurosa, selección de variables, validación estratificada y ajuste explícito de threshold. El flujo propuesto queda listo para uso operativo supervisado y mejora iterativa.
